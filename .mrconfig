@@ -1,0 +1,80 @@
+[DEFAULT]
+lib =
+        git_pull_build () {
+            TMPFILE="$(mktemp -t git.XXXXXX)"
+            trap '{ rm -f "$TMPFILE"; }' EXIT
+            git pull 2>&1 | tee "$TMPFILE"
+            RETURN_CODE="$?"
+            HAVE_CHANGES=0
+            grep -q "Already up-to-date." "$TMPFILE" || HAVE_CHANGES=1
+            if [ "$RETURN_CODE" -eq 0 ] && [ "$HAVE_CHANGES" -eq 1 ]; then
+                echo "Successfully pulled changes. Building."
+                eval "$@"
+            fi
+        }
+        hg_pull_update_build () {
+            TMPFILE="$(mktemp -t hg.XXXXXX)"
+            trap '{ rm -f "$TMPFILE"; }' EXIT
+            hg pull 2>&1 | tee "$TMPFILE"
+            RETURN_CODE="$?"
+            HAVE_CHANGES=0
+            grep -q "no changes" "$TMPFILE" || HAVE_CHANGES=1
+            if [ "$RETURN_CODE" -eq 0 ] && [ "$HAVE_CHANGES" -eq 1 ]; then
+                hg update
+                RETURN_CODE="$?"
+                if [ "$RETURN_CODE" -eq 0 ]; then
+                    echo "Successfully pulled and updated changes. Building."
+                    eval "$@"
+                fi
+            fi
+        }
+        bzr_pull_build () {
+            TMPFILE="$(mktemp -t bzr.XXXXXX)"
+            trap '{ rm -f "$TMPFILE"; }' EXIT
+            bzr pull 2>&1 | tee "$TMPFILE"
+            RETURN_CODE="$?"
+            HAVE_CHANGES=0
+            grep -q "No revisions or tags to pull." "$TMPFILE" || HAVE_CHANGES=1
+            if [ "$RETURN_CODE" -eq 0 ] && [ "$HAVE_CHANGES" -eq 1 ]; then
+                echo "Successfully pulled changes. Building."
+                eval "$@"
+            fi
+        }
+
+[devel/src/ack2/master]
+checkout = git clone 'https://github.com/petdance/ack2' 'master'
+update = git_pull_build "perl Makefile.PL && make ack-standalone && cp ack-standalone ~/bin/ack"
+
+[devel/src/autojump]
+checkout = git clone 'git://github.com/joelthelion/autojump.git' 'autojump'
+update = git_pull_build "./install.sh"
+
+[devel/src/the_silver_searcher]
+checkout = git clone 'git://github.com/ggreer/the_silver_searcher.git' 'the_silver_searcher'
+update = git_pull_build "./configure prefix=/usr/local && make && make install"
+
+[devel/src/cppcheck]
+checkout = git clone 'git://github.com/danmar/cppcheck.git' 'cppcheck'
+update = git_pull_build "./configure prefix=/usr/local && make"
+
+[devel/emacs/trunk]
+checkout = bzr branch 'bzr+ssh://cschol@bzr.savannah.gnu.org/emacs/trunk/' 'trunk'
+update = bzr_pull_build "./configure --prefix=/usr/local && make bootstrap -j 3 && make install"
+#skip = ([ "$1" = update ] && ! hours_since "$1" 6)
+
+[devel/src/tmux]
+checkout = git clone 'git://git.code.sf.net/p/tmux/tmux-code' 'tmux'
+update = git_pull_build "./configure prefix=/usr/local && make && make install"
+
+[devel/src/mr]
+checkout = git clone 'git://git.kitenet.net/mr' 'mr'
+update = git_pull_build "make"
+
+[devel/vim/trunk]
+checkout = hg clone 'https://code.google.com/p/vim/' 'trunk'
+update = hg_pull_update_build "./make_vim"
+
+[devel/git/git]
+checkout = git clone 'https://github.com/git/git.git' 'git'
+update = git_pull_build "make"
+
