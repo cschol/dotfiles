@@ -144,5 +144,8 @@ fi
 export PATH=~/bin:/usr/local/bin:$PATH
 export PATH=$PATH:~/devel/src/mr
 
-alias urxvt_dark="xrdb -merge ~/.Xresources; urxvt &"
-alias urxvt_light="xrdb -DSOLARIZED_LIGHT -merge ~/.Xresources; urxvt &"
+if [ -e "$HOME/.dynamic-colors" ]; then
+    PATH=$PATH:"$HOME"/.dynamic-colors/bin
+    alias dark="dynamic-colors switch solarized-dark"
+    alias light="dynamic-colors switch solarized-light"
+fi
