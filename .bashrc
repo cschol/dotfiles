@@ -144,7 +144,7 @@ fi
 export PATH=~/bin:/usr/local/bin:$PATH
 export PATH=$PATH:~/devel/src/mr
 
-if [ -e "$HOME/.dynamic-colors" ]; then
+if [[ "$TERM" == "rxvt-unicode-256color" ]] && [ -e "$HOME/.dynamic-colors" ]; then
     PATH=$PATH:"$HOME"/.dynamic-colors/bin
     alias dark="dynamic-colors switch solarized-dark"
     alias light="dynamic-colors switch solarized-light"
