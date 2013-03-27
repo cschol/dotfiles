@@ -55,7 +55,7 @@ update = git_pull_build "./configure prefix=/usr/local && make && make install"
 
 [devel/src/cppcheck]
 checkout = git clone 'git://github.com/danmar/cppcheck.git' 'cppcheck'
-update = git_pull_build "./configure prefix=/usr/local && make"
+update = git_pull_build "make"
 
 [devel/emacs/trunk]
 checkout = bzr branch 'bzr+ssh://cschol@bzr.savannah.gnu.org/emacs/trunk/' 'trunk'
